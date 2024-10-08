@@ -2,7 +2,7 @@ import { PrismaClient, Prisma } from "@prisma/client";
 import { Request, Response } from "express";
 const prisma = new PrismaClient();
 
-export type Subject = {
+export interface Subject {
   id: number | undefined,
   name: string,
   code: string,

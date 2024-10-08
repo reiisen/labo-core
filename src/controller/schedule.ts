@@ -5,14 +5,14 @@ const MAX_DAY = 6
 
 const prisma = new PrismaClient();
 
-type ScheduleRequest = {
+interface ScheduleRequest {
   subjectId: number,
   labId: number,
   timeslot: number,
   day: number
 }
 
-export type Schedule = {
+export interface Schedule {
   id: number | undefined,
   timeslot: number,
   day: number,
