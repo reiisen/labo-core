@@ -30,10 +30,11 @@ CREATE TABLE `Lab` (
 -- CreateTable
 CREATE TABLE `Schedule` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `timeslot` INTEGER NOT NULL,
-    `day_of_the_week` INTEGER NOT NULL,
     `subjectId` INTEGER NOT NULL,
     `labId` INTEGER NOT NULL,
+    `timeslot` INTEGER NOT NULL,
+    `day` INTEGER NOT NULL,
+    `length` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -41,11 +42,12 @@ CREATE TABLE `Schedule` (
 -- CreateTable
 CREATE TABLE `Reserve` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `timeslot` INTEGER NOT NULL,
-    `day_of_the_week` INTEGER NOT NULL,
     `labId` INTEGER NOT NULL,
     `userId` INTEGER NOT NULL,
     `reason` VARCHAR(191) NOT NULL,
+    `timeslot` INTEGER NOT NULL,
+    `day` INTEGER NOT NULL,
+    `length` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
