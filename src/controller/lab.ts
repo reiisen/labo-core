@@ -36,7 +36,7 @@ export const readOne = async (
 }
 
 export const readAll = async (
-  req: Request,
+  req: Request<{}>,
   res: Response<Lab[] | null>,
 ) => {
   const lab = await prisma.lab.findMany()

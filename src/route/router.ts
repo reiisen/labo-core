@@ -5,7 +5,7 @@ import schedule from "./routes/schedule"
 
 export default function setupRoute(app: Express) {
   app.get("/", (req, res) => {
-    res.send("You are in the root!");
+    res.send("this is the root lol");
   })
   app.use('/lab', lab);
   app.use('/subject', subject);
