@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import labData from "./init/lab.json"
-import subjectData from "./init/subject.json"
+import labData from "../init/lab.json"
+import subjectData from "../init/subject.json"
 
 const prisma = new PrismaClient();
 

@@ -1,48 +1,12 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import type { Reserve } from "@prisma/client";
 import { Request, Response } from "express";
-const MAX_TIMESLOT = 11;
-const MAX_DAY = 4;
-const MAX_LENGTH = 1;
+import env from "../extra/env/appenv"
+import checkCollision from "../extra/utility/checkCollision"
+
+const [MAX_TIMESLOT, MAX_DAY, MAX_SCHEDULE_LENGTH, MAX_RESERVE_LENGTH] = env;
 
 const prisma = new PrismaClient();
-
-async function checkCollision(request: Prisma.ScheduleCreateInput | Prisma.ReserveCreateInput): Promise<boolean> {
-  const combined = [
-    ...await prisma.schedule.findMany({
-      where: {
-        day: request.day
-      }
-    }),
-    ...await prisma.reserve.findMany({
-      where: {
-        day: request.day
-      }
-    })
-  ]
-
-  const map = Array<boolean>(MAX_TIMESLOT + 1).fill(false);
-  combined.forEach(
-    (value) => {
-      const timeslot = value.timeslot;
-      const length = value.length;
-      for (let i = timeslot; i < (timeslot + length); i++) {
-        map[i] = true;
-      }
-    }
-  );
-
-  let timeslot = request.timeslot;
-  const length = request.length;
-
-  for (let i = timeslot; i < (timeslot + length); i++) {
-    if (map[i] === true) {
-      return true;
-    }
-  }
-
-  return false;
-}
 
 export const create = async (
   req: Request<Omit<Reserve, 'id'>>,
@@ -69,15 +33,15 @@ export const create = async (
     return;
   }
 
-  if (request.length > MAX_LENGTH || request.length < 0) {
+  if (request.length > MAX_SCHEDULE_LENGTH || request.length < 0) {
     res.status(400);
-    res.send("The length of the requested schedule can't be negative or above the defined MAX_LENGTH")
+    res.send("The length of the requested schedule can't be negative or above the defined MAX_SCHEDULE_LENGTH")
     return;
   }
 
   if (request.timeslot + request.length - 1 > MAX_TIMESLOT) {
     res.status(400);
-    res.send("The requested schedule went beyond the defined MAX_LENGTH")
+    res.send("The requested schedule went beyond the defined MAX_SCHEDULE_LENGTH")
     return;
   }
 
@@ -95,7 +59,7 @@ export const create = async (
     length: request.length
   }
 
-  if (await checkCollision(reserve)) {
+  if (await checkCollision(request)) {
     res.status(400);
     res.send("The requested schedule collides with other existing schedule");
     return;
