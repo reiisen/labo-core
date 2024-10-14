@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from "@prisma/client";
+import type { Schedule } from "@prisma/client"
 import { Request, Response } from "express";
 const MAX_TIMESLOT = 11;
 const MAX_DAY = 4;
@@ -6,64 +7,41 @@ const MAX_LENGTH = 3;
 
 const prisma = new PrismaClient();
 
-interface ScheduleRequest {
-  subjectId: number,
-  labId: number,
-  timeslot: number,
-  day: number,
-  length: number
-}
-
-export interface Schedule {
-  id: number | undefined,
-  day: number,
-  subjectId: number,
-  labId: number
-  timeslot: number,
-  length: number,
-
-}
-
 async function checkCollision(request: Prisma.ScheduleCreateInput): Promise<boolean> {
   const schedule = await prisma.schedule.findMany({
     where: {
       day: request.day
     }
   });
+
   const map = Array<boolean>(MAX_TIMESLOT + 1).fill(false);
   schedule.forEach(
     (value) => {
       const timeslot = value.timeslot;
       const length = value.length;
-      console.log(timeslot);
-      console.log(length);
-      console.log(timeslot + length)
       for (let i = timeslot; i < (timeslot + length); i++) {
-        console.log("HIIIII");
         map[i] = true;
       }
-      console.log("XD");
     }
   );
-  console.log(map);
+
   let timeslot = request.timeslot;
   const length = request.length;
+
   for (let i = timeslot; i < (timeslot + length); i++) {
-    if (map[timeslot] === true) {
-      console.log("returning true...");
+    if (map[i] === true) {
       return true;
     }
   }
 
-  console.log("returning false...");
   return false;
 }
 
 export const create = async (
-  req: Request<ScheduleRequest>,
+  req: Request<Omit<Schedule, 'id'>>,
   res: Response<Schedule | string>,
 ) => {
-  let request: ScheduleRequest;
+  let request: Omit<Schedule, 'id'>;
   try {
     request = req.body;
   } catch {
@@ -87,6 +65,12 @@ export const create = async (
   if (request.length > MAX_LENGTH || request.length < 0) {
     res.status(400);
     res.send("The length of the requested schedule can't be negative or above the defined MAX_LENGTH")
+    return;
+  }
+
+  if (request.timeslot + request.length - 1 > MAX_LENGTH) {
+    res.status(400);
+    res.send("The requested schedule went beyond the defined MAX_LENGTH")
     return;
   }
 
@@ -159,4 +143,37 @@ export const read = async (
   } catch {
     res.status(400).send();
   }
+}
+
+export const update = async (
+  req: Request<Schedule>,
+  res: Response<Schedule | null>
+) => {
+  let id = req.params.id;
+  if (typeof id === 'string') {
+    id = parseInt(id);
+  }
+  const data = req.body
+  const schedule = await prisma.schedule.update({
+    where: {
+      id: id
+    },
+    data: data
+  })
+  res.status(200).send(schedule);
+}
+
+export const remove = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const id = parseInt(req.params.id);
+  await prisma.schedule.delete({
+    where: {
+      id: id
+    }
+  }).then(() => {
+    res.status(200);
+    res.send("OK");
+  })
 }

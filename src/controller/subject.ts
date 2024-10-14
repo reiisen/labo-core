@@ -1,20 +1,14 @@
 import { PrismaClient, Prisma } from "@prisma/client";
+import type { Subject } from "@prisma/client";
 import { Request, Response } from "express";
 const prisma = new PrismaClient();
 
-export interface Subject {
-  id: number | undefined,
-  name: string,
-  code: string,
-  dosen: string
-}
 
 export const create = async (
-  req: Request<Subject>,
+  req: Request<Prisma.SubjectCreateInput>,
   res: Response<Subject>
 ) => {
-  let subject: Prisma.SubjectCreateInput
-  subject = req.body
+  const subject: Prisma.SubjectCreateInput = req.body;
   await prisma.subject.create({ data: subject })
     .then((result) => {
       res.status(200);
@@ -32,6 +26,9 @@ export const readOne = async (
       id: id
     }
   })
+  if (subject === null) {
+    res.status(404).send();
+  }
   res.status(200).send(subject);
 }
 

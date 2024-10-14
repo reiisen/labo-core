@@ -1,5 +1,5 @@
 import express from "express";
-import { create, read, readAll, readOne } from "../../controller/schedule"
+import { create, read, readAll, readOne, update, remove } from "../../controller/schedule"
 
 const router = express.Router()
 
@@ -9,9 +9,9 @@ router.get('/', readAll);
 
 router.get('/filter', read)
 
-router.get('/:id/update',);
+router.get('/:id/update', update);
 
-router.get('/:id/remove',);
+router.get('/:id/remove', remove);
 
 router.get('/:id', readOne);
 

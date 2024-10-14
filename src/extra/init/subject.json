@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Algoritma dan Pemograman",
+    "code": "INF-001",
+    "dosen": "Kartono Pinaryanto"
+  },
+  {
+    "name": "Struktur Data Linear",
+    "code": "INF-003",
+    "dosen": "Robertus Adi Nugroho"
+  },
+  {
+    "name": "Pemograman Berorientasi Objek",
+    "code": "INF-006",
+    "dosen": "Yohanes Eka Priyatma"
+  },
+  {
+    "name": "Simulasi Jaringan",
+    "code": "JAR-002",
+    "dosen": "Bambang Sulistyanto"
+  }
+]

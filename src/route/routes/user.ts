@@ -1,18 +1,16 @@
 import express from "express";
-import { create, read, readAll, readOne, update, remove } from "../../controller/reserve"
+import { create, readOne, readAll, update, remove } from "../../controller/user"
 
 const router = express.Router()
 
 router.post('/create', create);
 
-router.get('/', readAll);
+router.get('/:id', readOne);
 
-router.get('/filter', read)
+router.get('/', readAll);
 
 router.get('/:id/update', update);
 
 router.get('/:id/remove', remove);
-
-router.get('/:id', readOne);
 
 export default router;

@@ -1,16 +1,15 @@
 import { PrismaClient, Prisma } from "@prisma/client";
-import type { Lab } from "@prisma/client";
+import type { User } from "@prisma/client";
 import { Request, Response } from "express";
 
 const prisma = new PrismaClient();
 
 export const create = async (
-  req: Request<Omit<Lab, 'id'>>,
-  res: Response<Lab>
+  req: Request<Prisma.UserCreateInput>,
+  res: Response<User>
 ) => {
-  let lab: Prisma.LabCreateInput
-  lab = req.body
-  await prisma.lab.create({ data: lab })
+  const user: Prisma.UserCreateInput = req.body;
+  await prisma.user.create({ data: user })
     .then((result) => {
       res.status(200);
       res.send(result);
@@ -19,41 +18,44 @@ export const create = async (
 
 export const readOne = async (
   req: Request<{ id: string }>,
-  res: Response<Lab | null>,
+  res: Response<User | null>,
 ) => {
   const id = parseInt(req.params.id);
-  const lab = await prisma.lab.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       id: id
     }
   })
-  res.status(200).send(lab);
+  if (user === null) {
+    res.status(404).send();
+  }
+  res.status(200).send(user);
 }
 
 export const readAll = async (
   req: Request<{}>,
-  res: Response<Lab[] | null>,
+  res: Response<User[] | null>,
 ) => {
-  const lab = await prisma.lab.findMany()
-  res.status(200).send(lab);
+  const user = await prisma.user.findMany()
+  res.status(200).send(user);
 }
 
 export const update = async (
-  req: Request<Lab>,
-  res: Response<Lab | null>
+  req: Request<User>,
+  res: Response<User | null>
 ) => {
   let id = req.params.id;
   if (typeof id === 'string') {
     id = parseInt(id);
   }
   const data = req.body
-  const lab = await prisma.lab.update({
+  const user = await prisma.user.update({
     where: {
       id: id
     },
     data: data
   })
-  res.status(200).send(lab);
+  res.status(200).send(user);
 }
 
 export const remove = async (
@@ -61,7 +63,7 @@ export const remove = async (
   res: Response
 ) => {
   const id = parseInt(req.params.id);
-  await prisma.lab.delete({
+  await prisma.user.delete({
     where: {
       id: id
     }

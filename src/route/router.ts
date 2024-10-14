@@ -2,6 +2,8 @@ import type { Express } from "express";
 import lab from "./routes/lab"
 import subject from "./routes/subject"
 import schedule from "./routes/schedule"
+import reserve from "./routes/reserve"
+import user from "./routes/user"
 
 export default function setupRoute(app: Express) {
   app.get("/", (req, res) => {
@@ -10,4 +12,6 @@ export default function setupRoute(app: Express) {
   app.use('/lab', lab);
   app.use('/subject', subject);
   app.use('/schedule', schedule)
+  app.use('/reserve', reserve)
+  app.use('/user', user)
 }

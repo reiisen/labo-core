@@ -52,4 +52,12 @@ model Reserve {
   timeslot Int
   day      Int
   length   Int
+  status   Status
+}
+
+enum Status {
+  PENDING
+  ACTIVE
+  CONCLUDED
+  CANCELLED
 }
