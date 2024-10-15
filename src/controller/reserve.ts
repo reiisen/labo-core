@@ -2,7 +2,8 @@ import { PrismaClient, Prisma } from "@prisma/client";
 import type { Reserve } from "@prisma/client";
 import { Request, Response } from "express";
 import env from "../extra/env/appenv"
-import checkCollision from "../extra/utility/checkCollision"
+import checkCollision from "../extra/utility/checkCollision";
+import { runStatusJob } from "../job/status";
 
 const [MAX_TIMESLOT, MAX_DAY, MAX_SCHEDULE_LENGTH, MAX_RESERVE_LENGTH] = env;
 
@@ -20,6 +21,7 @@ export const create = async (
     res.send("It seems the requested JSON body was incorrect")
     return;
   }
+  console.log("Schedule creation request received")
 
   if (request.timeslot > MAX_TIMESLOT || request.timeslot < 0) {
     res.status(400)
@@ -33,7 +35,7 @@ export const create = async (
     return;
   }
 
-  if (request.length > MAX_SCHEDULE_LENGTH || request.length < 0) {
+  if (request.length > MAX_RESERVE_LENGTH || request.length < 0) {
     res.status(400);
     res.send("The length of the requested schedule can't be negative or above the defined MAX_SCHEDULE_LENGTH")
     return;
@@ -62,11 +64,15 @@ export const create = async (
   if (await checkCollision(request)) {
     res.status(400);
     res.send("The requested schedule collides with other existing schedule");
-    return;
+    return console.log("Reservation Failed");
   }
   await prisma.reserve.create({ data: reserve })
-    .then((result) => {
+    .then(async (result) => {
+      console.log("Creating a job for managing statuses..");
+      runStatusJob(result);
+      console.log("Job created")
       res.status(200).send(result);
+      console.log("Successfully created a reservation for:\n" + JSON.stringify(result));
     });
 }
 

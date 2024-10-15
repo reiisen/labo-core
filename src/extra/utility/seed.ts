@@ -21,6 +21,11 @@ async function seed() {
   }
 }
 
-seed();
+try {
+  seed();
+  console.log("Seeding complete");
+} catch (e) {
+  console.log("Failed to seed, see error\n\n" + e);
+}
 
 

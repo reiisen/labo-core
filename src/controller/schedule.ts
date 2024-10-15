@@ -39,7 +39,7 @@ export const create = async (
     return;
   }
 
-  if (request.timeslot + request.length - 1 > MAX_SCHEDULE_LENGTH) {
+  if (request.timeslot + request.length - 1 > MAX_TIMESLOT) {
     res.status(400);
     res.send("The requested schedule went beyond the defined MAX_SCHEDULE_LENGTH")
     return;

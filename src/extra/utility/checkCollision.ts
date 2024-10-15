@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import type { Reserve, Schedule } from "@prisma/client";
+import env from "../env/appenv";
 
+const [MAX_TIMESLOT, MAX_DAY, MAX_SCHEDULE_LENGTH, MAX_RESERVE_LENGTH] = env;
 const prisma = new PrismaClient();
 
 export default async function checkCollision(request: Omit<Schedule, 'id'> | Omit<Reserve, 'id'>): Promise<boolean> {
