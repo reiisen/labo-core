@@ -2,6 +2,7 @@ import { PrismaClient, Reserve } from "@prisma/client";
 import { CronJob } from "cron";
 
 const prisma = new PrismaClient();
+export const jobs = new Map<number, CronJob>();
 
 export async function runStatusJob(request: Reserve): Promise<void> {
   const cronStart: string = "0 0 " + (request.timeslot + 7) + " * * " + (request.day + 1);
@@ -26,13 +27,16 @@ export async function runStatusJob(request: Reserve): Promise<void> {
           data: {
             status: "CONCLUDED"
           }
+        }).then(() => {
+          statusJob.stop();
+          jobs.delete(request.id);
         });
       }, duration);
     });
 
+  jobs.set(request.id, statusJob);
+  console.log(`Added job id ${request.id}`);
   statusJob.start();
-
-  setTimeout(() => statusJob.stop(), duration + 500);
 }
 
 export async function runTestJob(request: Reserve): Promise<void> {

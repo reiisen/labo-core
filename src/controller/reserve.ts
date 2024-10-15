@@ -3,7 +3,7 @@ import type { Reserve } from "@prisma/client";
 import { Request, Response } from "express";
 import env from "../extra/env/appenv"
 import checkCollision from "../extra/utility/checkCollision";
-import { runStatusJob } from "../job/status";
+import { jobs, runStatusJob } from "../job/status";
 
 const [MAX_TIMESLOT, MAX_DAY, MAX_SCHEDULE_LENGTH, MAX_RESERVE_LENGTH] = env;
 
@@ -142,8 +142,47 @@ export const update = async (
   res.status(200).send(reserve);
 }
 
+export const cancel = async (
+  req: Request<Reserve>,
+  res: Response<Reserve | null>
+) => {
+  let id = req.params.id;
+  if (typeof id === 'string') {
+    id = parseInt(id);
+  }
+
+  const check = await prisma.reserve.findUnique({
+    where: {
+      id: id
+    }
+  });
+
+  if (!check) {
+    res.status(400).send();
+    return;
+  }
+
+  if (check.status === "CONCLUDED" || check.status === "CANCELLED") {
+    res.status(400);
+    return;
+  }
+
+  const reserve = await prisma.reserve.update({
+    where: {
+      id: id
+    },
+    data: {
+      status: "CANCELLED"
+    }
+  });
+
+  jobs.get(id)?.stop();
+  jobs.delete(id);
+  res.status(200).send(reserve);
+}
+
 export const remove = async (
-  req: Request<{ id: string }>,
+  req: Request,
   res: Response
 ) => {
   const id = parseInt(req.params.id);

@@ -20,7 +20,15 @@ export default async function checkCollision(request: Omit<Schedule, 'id'> | Omi
         day: request.day,
         lab: {
           id: request.labId
-        }
+        },
+        OR: [
+          {
+            status: "ACTIVE"
+          },
+          {
+            status: "PENDING"
+          }
+        ]
       }
     })
   ];
