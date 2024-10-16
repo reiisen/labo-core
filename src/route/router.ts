@@ -6,9 +6,7 @@ import reserve from "./routes/reserve"
 import user from "./routes/user"
 
 export default function setupRoute(app: Express) {
-  app.get("/", (req, res) => {
-    res.send("this is the root lol");
-  })
+  app.get("/", (req, res) => { res.send("this is the root lol"); })
   app.use('/lab', lab);
   app.use('/subject', subject);
   app.use('/schedule', schedule)

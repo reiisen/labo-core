@@ -144,7 +144,7 @@ export const update = async (
 
 export const cancel = async (
   req: Request<Reserve>,
-  res: Response<Reserve | null>
+  res: Response<Reserve | string | null>
 ) => {
   let id = req.params.id;
   if (typeof id === 'string') {
@@ -158,12 +158,17 @@ export const cancel = async (
   });
 
   if (!check) {
-    res.status(400).send();
+    res.status(404).send('Reservation does not exist');
     return;
   }
 
-  if (check.status === "CONCLUDED" || check.status === "CANCELLED") {
-    res.status(400);
+  if (check.status === "CONCLUDED") {
+    res.status(400).send('This reservation has already concluded');
+    return;
+  }
+
+  if (check.status === "CANCELLED") {
+    res.status(400).send('This reservation has already cancelled');
     return;
   }
 
@@ -176,10 +181,31 @@ export const cancel = async (
     }
   });
 
-  jobs.get(id)?.stop();
+  const job = jobs.get(id);
+
+  if (job !== undefined) {
+    if (check.status === "PENDING") {
+      job[0].stop();
+    } else job[1].stop();
+    console.log("stopped job");
+  }
+
   jobs.delete(id);
   res.status(200).send(reserve);
 }
+
+export const getActiveJobs = async (
+  req: Request,
+  res: Response<{ id: number; running: { start: boolean, finish: boolean } }[]>
+) => {
+  let activeJobs: { id: number; running: { start: boolean, finish: boolean } }[] = [];
+
+  for (const [id, job] of jobs.entries()) {
+    activeJobs.push({ id: Number(id), running: { start: job[0].running, finish: job[1].running } });
+  }
+
+  res.status(200).send(activeJobs);
+};
 
 export const remove = async (
   req: Request,
