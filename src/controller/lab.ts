@@ -56,6 +56,13 @@ export const update = async (
   res.status(200).send(lab);
 }
 
+export const getJobs = async (
+  req: Request,
+  res: Response<string[]>
+) => {
+
+}
+
 export const remove = async (
   req: Request<{ id: string }>,
   res: Response

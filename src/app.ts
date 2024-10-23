@@ -1,9 +1,13 @@
 import express from 'express';
 import setupRoute from './route/router'
+import cors from 'cors';
 
 const app = express();
 
-app.use(express.json())
+app.use(express.json());
+app.use(cors({
+  origin: "http://localhost:3000"
+}));
 
 const port = process.env.PORT;
 
