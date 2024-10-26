@@ -14,6 +14,7 @@ const port = process.env.PORT;
 setupRoute(app);
 
 app.listen(port, () => {
+  console.clear();
   console.log(`
     🚀 Server ready at: http://localhost:${port}
 
@@ -21,5 +22,5 @@ app.listen(port, () => {
        時は時々残酷ようなものだが
        そのものの経過にいつもいつも流れさえすれば
        あなたの時代はまだ終わっていません
-  `)
+  `);
 })

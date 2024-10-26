@@ -7,7 +7,7 @@ router.post('/create', create);
 
 router.get('/', readAll);
 
-router.get('/filter', read);
+router.post('/filter', read);
 
 router.get('/jobs', getActiveJobs);
 

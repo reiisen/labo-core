@@ -98,7 +98,7 @@ export const readOne = async (
 }
 
 export const read = async (
-  req: Request<Partial<Omit<Schedule, "id">> | Pick<Schedule, "id">>,
+  req: Request<Partial<Schedule>>,
   res: Response<Schedule[]>
 ) => {
   const filter: Partial<Schedule> = req.body;
