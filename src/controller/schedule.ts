@@ -106,10 +106,6 @@ export const read = async (
     const schedules = await prisma.schedule.findMany({
       where: filter
     });
-    if (Object.keys(schedules).length === 0) {
-      res.status(404).send();
-      return;
-    }
     res.status(200).send(schedules);
   } catch {
     res.status(400).send();

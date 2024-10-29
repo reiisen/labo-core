@@ -114,10 +114,6 @@ export const read = async (
     const reserves = await prisma.reserve.findMany({
       where: filter
     });
-    if (Object.keys(reserves).length === 0) {
-      res.status(404).send();
-      return;
-    }
     res.status(200).send(reserves);
   } catch {
     res.status(400).send();
