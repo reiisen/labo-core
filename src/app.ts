@@ -6,7 +6,7 @@ import config from '../config.json';
 const app = express();
 
 app.use(express.json());
-app.use(cors({ origin: `http://localhost:${config.serverPort}` }));
+app.use(cors({ origin: `http://localhost:3000` }));
 
 const port = process.env.PORT;
 

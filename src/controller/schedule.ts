@@ -1,10 +1,8 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import type { Schedule } from "@prisma/client"
 import { Request, Response } from "express";
-import env from "../extra/env/appenv"
 import checkCollision from "../extra/utility/checkCollision"
-
-const [MAX_TIMESLOT, MAX_DAY, MAX_SCHEDULE_LENGTH, MAX_RESERVE_LENGTH] = env;
+import config from "../extra/utility/config";
 
 const prisma = new PrismaClient();
 
@@ -21,25 +19,25 @@ export const create = async (
     return;
   }
 
-  if (request.timeslot > MAX_TIMESLOT || request.timeslot < 0) {
+  if (request.timeslot > config.maxTimeslot || request.timeslot < 0) {
     res.status(400)
     res.send("The specified timeslot of the requested schedule can't be negative nor above the defined MAX_TIMESLOT");
     return;
   }
 
-  if (request.day > MAX_DAY || request.day < 0) {
+  if (request.day > config.maxDay || request.day < 0) {
     res.status(400);
     res.send("The specified data of the requested schedule can't be negative nor above the defined MAX_DAY")
     return;
   }
 
-  if (request.length > MAX_SCHEDULE_LENGTH || request.length < 0) {
+  if (request.length > config.maxScheduleLength || request.length < 0) {
     res.status(400);
     res.send("The length of the requested schedule can't be negative or above the defined MAX_SCHEDULE_LENGTH")
     return;
   }
 
-  if (request.timeslot + request.length - 1 > MAX_TIMESLOT) {
+  if (request.timeslot + request.length - 1 > config.maxTimeslot) {
     res.status(400);
     res.send("The requested schedule went beyond the defined MAX_SCHEDULE_LENGTH")
     return;
@@ -98,13 +96,26 @@ export const readOne = async (
 }
 
 export const read = async (
-  req: Request<Partial<Schedule>>,
+  req: Request<Partial<Schedule & { includeSubject: boolean }>>,
   res: Response<Schedule[]>
 ) => {
-  const filter: Partial<Schedule> = req.body;
+  const request: Partial<Schedule> & { includeSubject: boolean } = req.body;
+  const { includeSubject, ...scheduleData } = request;
+  let include: { subject: boolean };
+  if (request.includeSubject) {
+    include = {
+      subject: true
+    }
+  } else {
+    include = {
+      subject: false
+    }
+  }
+
   try {
     const schedules = await prisma.schedule.findMany({
-      where: filter
+      where: scheduleData,
+      include: include
     });
     res.status(200).send(schedules);
   } catch {

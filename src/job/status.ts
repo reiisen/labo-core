@@ -19,7 +19,7 @@ export async function runStatusJob(request: Reserve): Promise<void> {
           status: "ACTIVE"
         }
       });
-      process.stdout.write(`Done.\n Stopping the job.. `)
+      process.stdout.write(`Done.\n Stopping the starter job.. `)
       startStatusJob.stop();
       process.stdout.write(`Done.\n`)
     }
@@ -37,7 +37,7 @@ export async function runStatusJob(request: Reserve): Promise<void> {
           status: "CONCLUDED"
         }
       });
-      process.stdout.write(`Done.\n Stopping and removing the rest.. `)
+      process.stdout.write(`Done.\n Stopping the finish job and removing the rest.. `)
       finishStatusJob.stop();
       jobs.delete(request.id);
       process.stdout.write(`Done.\n`)

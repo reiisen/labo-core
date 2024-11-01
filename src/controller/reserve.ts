@@ -51,12 +51,10 @@ export const create = async (
   }
 
   const reserve: Prisma.ReserveCreateInput = {
-    user: {
-      connect: { id: request.userId }
-    },
     lab: {
       connect: { id: request.labId }
     },
+    name: request.name,
     reason: request.reason,
     status: "PENDING",
     timeslot: request.timeslot,
