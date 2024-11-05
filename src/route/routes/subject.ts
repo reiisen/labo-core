@@ -1,5 +1,5 @@
 import express from "express";
-import { create, readOne, readAll, update, remove } from "../../controller/subject"
+import { create, readOne, readAll, update, remove, read } from "../../controller/subject"
 
 const router = express.Router()
 
@@ -8,6 +8,8 @@ router.post('/create', create);
 router.get('/:id', readOne);
 
 router.get('/', readAll);
+
+router.get('/filter', read);
 
 router.get('/:id/update', update);
 

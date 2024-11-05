@@ -40,6 +40,21 @@ export const readAll = async (
   res.status(200).send(subject);
 }
 
+export const read = async (
+  req: Request<Partial<Omit<Subject, "id">> | Pick<Subject, "id">>,
+  res: Response<Subject[]>
+) => {
+  const filter: Partial<Omit<Subject, "id">> | Pick<Subject, "id"> = req.body;
+  try {
+    const subject = await prisma.subject.findMany({
+      where: filter
+    });
+    res.status(200).send(subject);
+  } catch {
+    res.status(400).send();
+  }
+}
+
 export const update = async (
   req: Request<Subject>,
   res: Response<Subject | null>

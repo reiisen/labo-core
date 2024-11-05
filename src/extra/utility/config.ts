@@ -34,7 +34,7 @@ export async function updateConfig(newConfig: Config) {
 
   console.log("OK. Now currently trying to update..");
   try {
-    await fsAsync.writeFile(path.join(process.cwd(), 'config.json'), JSON.stringify(newConfig));
+    await fsAsync.writeFile(path.join(process.cwd(), 'config.json'), JSON.stringify(newConfig, undefined, 2));
     read();
     console.log("Config updated and re-read.");
   } catch (e) {

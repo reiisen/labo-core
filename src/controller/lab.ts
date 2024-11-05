@@ -38,6 +38,21 @@ export const readAll = async (
   res.status(200).send(lab);
 }
 
+export const read = async (
+  req: Request<Partial<Omit<Lab, "id">> | Pick<Lab, "id">>,
+  res: Response<Lab[]>
+) => {
+  const filter: Partial<Omit<Lab, "id">> | Pick<Lab, "id"> = req.body;
+  try {
+    const lab = await prisma.lab.findMany({
+      where: filter
+    });
+    res.status(200).send(lab);
+  } catch {
+    res.status(400).send();
+  }
+}
+
 export const update = async (
   req: Request<Lab>,
   res: Response<Lab | null>
@@ -54,13 +69,6 @@ export const update = async (
     data: data
   })
   res.status(200).send(lab);
-}
-
-export const getJobs = async (
-  req: Request,
-  res: Response<string[]>
-) => {
-
 }
 
 export const remove = async (

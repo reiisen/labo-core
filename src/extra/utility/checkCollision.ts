@@ -1,8 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import type { Reserve, Schedule } from "@prisma/client";
-import env from "../env/appenv";
+import config from "./config";
 
-const [MAX_TIMESLOT, MAX_DAY, MAX_SCHEDULE_LENGTH, MAX_RESERVE_LENGTH] = env;
 const prisma = new PrismaClient();
 
 export default async function checkCollision(request: Omit<Schedule, 'id'> | Omit<Reserve, 'id'>): Promise<boolean> {
@@ -33,7 +32,7 @@ export default async function checkCollision(request: Omit<Schedule, 'id'> | Omi
     })
   ];
 
-  const map = Array<boolean>(MAX_TIMESLOT + 1).fill(false);
+  const map = Array<boolean>(config.maxTimeslot + 1).fill(false);
   combined.forEach(
     (value) => {
       const timeslot = value.timeslot;
