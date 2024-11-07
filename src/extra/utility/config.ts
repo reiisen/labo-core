@@ -5,10 +5,11 @@ import path from 'path';
 export interface Config {
   maxTimeslot: number;
   maxDay: number;
-  maxScheduleLength: number;
+  maxCourseLength: number;
   maxReserveLength: number;
   serverPort: number;
   pollingRate: number;
+  semesterEnd: string;
 }
 
 let config: Config = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json'), 'utf8'));
@@ -17,10 +18,14 @@ export function getConfig(): Config {
   return config;
 }
 
-export async function updateConfig(newConfig: Config) {
+export async function updateConfig(configUpdates: Partial<Config>) {
+  const newConfig: Config = {
+    ...config,
+    ...configUpdates
+  }
   console.log("New config received:\n" + JSON.stringify(newConfig));
   const keysOld = Object.keys(config);
-  const keysNew = Object.keys(config);
+  const keysNew = Object.keys(newConfig);
 
   if (keysOld.length !== keysNew.length) {
     return;

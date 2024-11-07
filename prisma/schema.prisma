@@ -8,23 +8,23 @@ datasource db {
 }
 
 model Subject {
-  id        Int        @id @default(autoincrement())
-  name      String
-  code      String
-  dosen     String
-  schedules Schedule[]
+  id     Int      @id @default(autoincrement())
+  name   String
+  code   String
+  dosen  String
+  course Course[]
 }
 
 model Lab {
-  id        Int        @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
   code      String
   floor     Int
-  schedules Schedule[]
+  schedules Course[]
   reserves  Reserve[]
 }
 
-model Schedule {
+model Course {
   id        Int     @id @default(autoincrement())
   subject   Subject @relation(fields: [subjectId], references: [id])
   subjectId Int
@@ -36,13 +36,12 @@ model Schedule {
 }
 
 model Reserve {
-  id       Int    @id @default(autoincrement())
-  lab      Lab    @relation(fields: [labId], references: [id])
+  id       Int      @id @default(autoincrement())
+  lab      Lab      @relation(fields: [labId], references: [id])
   labId    Int
   name     String
   reason   String
-  timeslot Int
-  day      Int
+  date     DateTime
   length   Int
   status   Status
 }

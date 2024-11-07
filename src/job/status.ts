@@ -5,8 +5,8 @@ const prisma = new PrismaClient();
 export const jobs = new Map<number, [CronJob, CronJob]>();
 
 export async function runStatusJob(request: Reserve): Promise<void> {
-  const cronStart: string = "0 0 " + (request.timeslot + 7) + " * * " + (request.day + 1);
-  const cronFinish: string = "0 0 " + (request.timeslot + 7 + request.length) + " * * " + (request.day + 1);
+  const cronStart: string = "0 0 " + request.date.getHours() + " * * " + (request.date.getDay());
+  const cronFinish: string = "0 0 " + (request.date.getHours() + request.length) + " * * " + (request.date.getDay());
   const startStatusJob = new CronJob(
     cronStart,
     async () => {

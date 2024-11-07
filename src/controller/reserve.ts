@@ -1,19 +1,19 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import type { Reserve } from "@prisma/client";
 import { Request, Response } from "express";
-import checkCollision from "../extra/utility/checkCollision";
 import { jobs, runStatusJob } from "../job/status";
 import config from "../extra/utility/config";
+import { checkReserveCollision } from "../extra/utility/checkCollision";
 
 const prisma = new PrismaClient();
 
 export const create = async (
-  req: Request<Omit<Reserve, 'id'>>,
+  req: Request<Omit<Reserve, 'id' | 'status'>>,
   res: Response<Reserve | string>,
 ) => {
   let request: Omit<Reserve, 'id'>;
   try {
-    request = req.body;
+    request = { ...req.body, date: new Date(req.body.date) }
   } catch {
     res.status(400);
     res.send("It seems the requested JSON body was incorrect")
@@ -21,31 +21,41 @@ export const create = async (
   }
   console.log("Reservation creation request received")
 
-  if (request.timeslot > config.maxTimeslot || request.timeslot < 0) {
+  console.log("DA REQUEST:\n" + JSON.stringify(request, null, 2));
+  console.log("DA DATATYPE NOW: " + typeof request.date)
+
+  const reserveHour = request.date.getHours();
+  const reserveDay = request.date.getDay() - 1;
+
+  console.log("RESERVE HOUR: " + reserveHour);
+  console.log("CONFIG MAX HOUR: " + config.maxTimeslot);
+  if (reserveHour > config.maxTimeslot || reserveHour < 0) {
     res.status(400)
     res.send("The specified timeslot of the requested Reservation can't be negative nor above the defined MAX_TIMESLOT");
     return;
   }
 
-  if (request.day > config.maxDay || request.day < 0) {
+  console.log("RESERVE DAY: " + reserveDay);
+  console.log("CONFIG MAX DAY: " + config.maxDay);
+  if (reserveDay > config.maxDay || reserveDay < 0) {
     res.status(400);
-    res.send("The specified data of the requested Reservation can't be negative nor above the defined MAX_DAY")
+    res.send("The specified day of the requested Reservation can't be negative nor above the defined MAX_DAY")
     return;
   }
 
   if (request.length > config.maxReserveLength || request.length < 0) {
     res.status(400);
-    res.send("The length of the requested Reservation can't be negative or above the defined MAX_SCHEDULE_LENGTH")
+    res.send("The length of the requested Reservation can't be negative or above the defined MAX_RESERVE_LENGTH")
     return;
   }
 
-  if (request.timeslot + request.length - 1 > config.maxTimeslot) {
+  if (reserveHour + request.length - 1 > config.maxTimeslot) {
     res.status(400);
-    res.send("The requested Reservation went beyond the defined MAX_SCHEDULE_LENGTH")
+    res.send("The requested Reservation went beyond the defined MAX_RESERVE_LENGTH")
     return;
   }
 
-  if (request.timeslot + 7 < new Date().getHours()) {
+  if (reserveHour + 7 < new Date().getHours()) {
     res.status(400);
     res.send("The requested Reservation has already went past the hour")
   }
@@ -57,12 +67,11 @@ export const create = async (
     name: request.name,
     reason: request.reason,
     status: "PENDING",
-    timeslot: request.timeslot,
-    day: request.day,
+    date: request.date,
     length: request.length
   }
 
-  if (await checkCollision(request)) {
+  if (await checkReserveCollision(request)) {
     res.status(400);
     res.send("The requested schedule collides with other existing schedule");
     return console.log("Reservation Failed");
@@ -193,12 +202,12 @@ export const cancel = async (
 
 export const getActiveJobs = async (
   req: Request,
-  res: Response<{ id: number; running: { start: boolean, finish: boolean } }[]>
+  res: Response<{ id: number; jobs: { start: boolean, finish: boolean } }[]>
 ) => {
-  let activeJobs: { id: number; running: { start: boolean, finish: boolean } }[] = [];
+  let activeJobs: { id: number; jobs: { start: boolean, finish: boolean } }[] = [];
 
   for (const [id, job] of jobs.entries()) {
-    activeJobs.push({ id: Number(id), running: { start: job[0].running, finish: job[1].running } });
+    activeJobs.push({ id: Number(id), jobs: { start: job[0].running, finish: job[1].running } });
   }
 
   res.status(200).send(activeJobs);

@@ -1,5 +1,5 @@
 import express from "express";
-import { create, read, readAll, readOne, update, remove } from "../../controller/schedule"
+import { create, read, readAll, readOne, update, remove } from "../../controller/course"
 
 const router = express.Router()
 
