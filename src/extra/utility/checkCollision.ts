@@ -40,10 +40,11 @@ export async function checkCourseCollision(request: Omit<Course, 'id'>): Promise
 }
 
 export async function checkReserveCollision(request: Omit<Reserve, 'id'>): Promise<boolean> {
+  console.log(JSON.stringify(request, null, 2));
   const courses = [
     ...await prisma.course.findMany({
       where: {
-        day: request.date.getHours(),
+        day: request.date.getDay(),
         lab: {
           id: request.labId
         }

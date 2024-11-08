@@ -12,6 +12,7 @@ export const create = async (
   res: Response<Reserve | string>,
 ) => {
   let request: Omit<Reserve, 'id'>;
+  console.log("WHY: \n" + JSON.stringify(req.body));
   try {
     request = { ...req.body, date: new Date(req.body.date) }
   } catch {
@@ -29,7 +30,7 @@ export const create = async (
 
   console.log("RESERVE HOUR: " + reserveHour);
   console.log("CONFIG MAX HOUR: " + config.maxTimeslot);
-  if (reserveHour > config.maxTimeslot || reserveHour < 0) {
+  if (reserveHour > config.maxTimeslot + 7 || reserveHour < 0) {
     res.status(400)
     res.send("The specified timeslot of the requested Reservation can't be negative nor above the defined MAX_TIMESLOT");
     return;
@@ -49,7 +50,7 @@ export const create = async (
     return;
   }
 
-  if (reserveHour + request.length - 1 > config.maxTimeslot) {
+  if (reserveHour + request.length - 1 > config.maxTimeslot + 7) {
     res.status(400);
     res.send("The requested Reservation went beyond the defined MAX_RESERVE_LENGTH")
     return;
@@ -202,12 +203,31 @@ export const cancel = async (
 
 export const getActiveJobs = async (
   req: Request,
-  res: Response<{ id: number; jobs: { start: boolean, finish: boolean } }[]>
+  res: Response<{ id: number; jobs: { start: { running: boolean, date: string }, finish: { running: boolean, date: string } } }[]>
 ) => {
-  let activeJobs: { id: number; jobs: { start: boolean, finish: boolean } }[] = [];
+  let activeJobs: { id: number; jobs: { start: { running: boolean, date: string }, finish: { running: boolean, date: string } } }[] = [];
 
   for (const [id, job] of jobs.entries()) {
-    activeJobs.push({ id: Number(id), jobs: { start: job[0].running, finish: job[1].running } });
+    activeJobs.push(
+      {
+        id: Number(id),
+        jobs: {
+          start:
+          {
+            running: job[0].running,
+            date: job[0].nextDate().toISO() ?
+              job[0].nextDate().toISO()! :
+              "Invalid Date"
+          },
+          finish:
+          {
+            running: job[1].running,
+            date: job[1].nextDate().toISO() ?
+              job[1].nextDate().toISO()! :
+              "Invalid Date"
+          }
+        }
+      });
   }
 
   res.status(200).send(activeJobs);
