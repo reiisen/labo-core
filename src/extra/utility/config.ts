@@ -3,8 +3,10 @@ import fsAsync from 'node:fs/promises';
 import path from 'path';
 
 export interface Config {
+  minTimeslot: number;
   maxTimeslot: number;
   maxDay: number;
+  minDay: number;
   maxCourseLength: number;
   maxReserveLength: number;
   serverPort: number;
@@ -24,18 +26,6 @@ export async function updateConfig(configUpdates: Partial<Config>) {
     ...configUpdates
   }
   console.log("New config received:\n" + JSON.stringify(newConfig));
-  const keysOld = Object.keys(config);
-  const keysNew = Object.keys(newConfig);
-
-  if (keysOld.length !== keysNew.length) {
-    return;
-  }
-
-  for (let i = 0; i < keysOld.length; i++) {
-    if (keysOld[i] !== keysNew[i]) {
-      return;
-    }
-  }
 
   console.log("OK. Now currently trying to update..");
   try {

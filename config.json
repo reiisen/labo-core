@@ -1,9 +1,11 @@
 {
-  "maxTimeslot": 10,
-  "maxDay": 4,
+  "maxTimeslot": 17,
+  "maxDay": 5,
   "maxCourseLength": 3,
   "maxReserveLength": 1,
   "serverPort": 8000,
-  "pollingRate": 2000,
-  "semesterEnd": "12-19-2024"
+  "pollingRate": 1000,
+  "semesterEnd": "12-19-2024",
+  "minDay": 1,
+  "minTimeslot": 7
 }

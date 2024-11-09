@@ -26,11 +26,11 @@ export const create = async (
   console.log("DA DATATYPE NOW: " + typeof request.date)
 
   const reserveHour = request.date.getHours();
-  const reserveDay = request.date.getDay() - 1;
+  const reserveDay = request.date.getDay();
 
   console.log("RESERVE HOUR: " + reserveHour);
   console.log("CONFIG MAX HOUR: " + config.maxTimeslot);
-  if (reserveHour > config.maxTimeslot + 7 || reserveHour < 0) {
+  if (reserveHour > config.maxTimeslot || reserveHour < config.minTimeslot) {
     res.status(400)
     res.send("The specified timeslot of the requested Reservation can't be negative nor above the defined MAX_TIMESLOT");
     return;
@@ -38,7 +38,7 @@ export const create = async (
 
   console.log("RESERVE DAY: " + reserveDay);
   console.log("CONFIG MAX DAY: " + config.maxDay);
-  if (reserveDay > config.maxDay || reserveDay < 0) {
+  if (reserveDay > config.maxDay || reserveDay < config.minDay) {
     res.status(400);
     res.send("The specified day of the requested Reservation can't be negative nor above the defined MAX_DAY")
     return;
@@ -50,7 +50,7 @@ export const create = async (
     return;
   }
 
-  if (reserveHour + request.length - 1 > config.maxTimeslot + 7) {
+  if (reserveHour + request.length - 1 > config.maxTimeslot) {
     res.status(400);
     res.send("The requested Reservation went beyond the defined MAX_RESERVE_LENGTH")
     return;
@@ -120,6 +120,7 @@ export const read = async (
   req: Request<Partial<Omit<Reserve, "id">> | Pick<Reserve, "id">>,
   res: Response<Reserve[]>
 ) => {
+  console.log(JSON.stringify(req.body, null, 2));
   const filter: Partial<Omit<Reserve, "id">> | Pick<Reserve, "id"> = req.body;
   try {
     const reserves = await prisma.reserve.findMany({
@@ -205,7 +206,14 @@ export const getActiveJobs = async (
   req: Request,
   res: Response<{ id: number; jobs: { start: { running: boolean, date: string }, finish: { running: boolean, date: string } } }[]>
 ) => {
-  let activeJobs: { id: number; jobs: { start: { running: boolean, date: string }, finish: { running: boolean, date: string } } }[] = [];
+  let activeJobs:
+    {
+      id: number;
+      jobs: {
+        start: { running: boolean, date: string },
+        finish: { running: boolean, date: string }
+      }
+    }[] = [];
 
   for (const [id, job] of jobs.entries()) {
     activeJobs.push(

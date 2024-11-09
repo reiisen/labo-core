@@ -19,15 +19,15 @@ export const create = async (
     return;
   }
 
-  if (request.timeslot > config.maxTimeslot || request.timeslot < 0) {
+  if (request.timeslot > config.maxTimeslot || request.timeslot < config.minTimeslot) {
     res.status(400)
     res.send("The specified timeslot of the requested course can't be negative nor above the defined MAX_TIMESLOT");
     return;
   }
 
-  if (request.day > config.maxDay || request.day < 0) {
+  if (request.day > config.maxDay || request.day < config.minDay) {
     res.status(400);
-    res.send("The specified data of the requested course can't be negative nor above the defined MAX_DAY")
+    res.send("The specified data of the requested course can't be less than one nor above the defined MAX_DAY")
     return;
   }
 
