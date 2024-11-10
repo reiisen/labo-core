@@ -2,7 +2,7 @@ import { PrismaClient, Prisma } from "@prisma/client";
 import type { Reserve } from "@prisma/client";
 import { Request, Response } from "express";
 import { jobs, runStatusJob } from "../job/status";
-import config from "../extra/utility/config";
+import { getConfig } from "../extra/utility/config";
 import { checkReserveCollision } from "../extra/utility/checkCollision";
 
 const prisma = new PrismaClient();
@@ -29,36 +29,45 @@ export const create = async (
   const reserveDay = request.date.getDay();
 
   console.log("RESERVE HOUR: " + reserveHour);
-  console.log("CONFIG MAX HOUR: " + config.maxTimeslot);
-  if (reserveHour > config.maxTimeslot || reserveHour < config.minTimeslot) {
-    res.status(400)
-    res.send("The specified timeslot of the requested Reservation can't be negative nor above the defined MAX_TIMESLOT");
-    return;
+  console.log("getConfig() MAX HOUR: " + getConfig().maxTimeslot);
+  console.log(getConfig().ignoreTimeslotBoundary);
+  if (!getConfig().ignoreTimeslotBoundary) {
+    if (reserveHour > getConfig().maxTimeslot || reserveHour < getConfig().minTimeslot) {
+      res.status(400)
+      res.send("The specified timeslot of the requested Reservation can't be negative nor above the defined MAX_TIMESLOT");
+      return;
+    }
   }
 
+  console.log(getConfig().ignoreDayBoundary);
   console.log("RESERVE DAY: " + reserveDay);
-  console.log("CONFIG MAX DAY: " + config.maxDay);
-  if (reserveDay > config.maxDay || reserveDay < config.minDay) {
-    res.status(400);
-    res.send("The specified day of the requested Reservation can't be negative nor above the defined MAX_DAY")
-    return;
+  console.log("getConfig() MAX DAY: " + getConfig().maxDay);
+  if (!getConfig().ignoreDayBoundary) {
+    if (reserveDay > getConfig().maxDay || reserveDay < getConfig().minDay) {
+      res.status(400);
+      res.send("The specified day of the requested Reservation can't be negative nor above the defined MAX_DAY")
+      return;
+    }
   }
 
-  if (request.length > config.maxReserveLength || request.length < 0) {
-    res.status(400);
-    res.send("The length of the requested Reservation can't be negative or above the defined MAX_RESERVE_LENGTH")
-    return;
-  }
+  console.log(getConfig().ignoreLengthBoundary);
+  if (!getConfig().ignoreLengthBoundary) {
+    if (request.length > getConfig().maxReserveLength || request.length < 0) {
+      res.status(400);
+      res.send("The length of the requested Reservation can't be negative or above the defined MAX_RESERVE_LENGTH")
+      return;
+    }
 
-  if (reserveHour + request.length - 1 > config.maxTimeslot) {
-    res.status(400);
-    res.send("The requested Reservation went beyond the defined MAX_RESERVE_LENGTH")
-    return;
-  }
+    if (reserveHour + request.length - 1 > getConfig().maxTimeslot) {
+      res.status(400);
+      res.send("The requested Reservation went beyond the defined MAX_RESERVE_LENGTH")
+      return;
+    }
 
-  if (reserveHour + 7 < new Date().getHours()) {
-    res.status(400);
-    res.send("The requested Reservation has already went past the hour")
+    if (reserveHour + 7 < new Date().getHours()) {
+      res.status(400);
+      res.send("The requested Reservation has already went past the hour")
+    }
   }
 
   const reserve: Prisma.ReserveCreateInput = {

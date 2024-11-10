@@ -12,6 +12,9 @@ export interface Config {
   serverPort: number;
   pollingRate: number;
   semesterEnd: string;
+  ignoreTimeslotBoundary: boolean;
+  ignoreDayBoundary: boolean;
+  ignoreLengthBoundary: boolean;
 }
 
 let config: Config = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json'), 'utf8'));
@@ -32,6 +35,7 @@ export async function updateConfig(configUpdates: Partial<Config>) {
     await fsAsync.writeFile(path.join(process.cwd(), 'config.json'), JSON.stringify(newConfig, undefined, 2));
     read();
     console.log("Config updated and re-read.");
+    console.log(`Current config:\n ${JSON.stringify(config, null, 2)}`)
   } catch (e) {
     console.log("Failed to overwrite config. Error: \n" + e)
   }
@@ -44,5 +48,3 @@ export async function read() {
     console.log("Failed to read from file. Is the config structure correct?\n" + e);
   }
 }
-
-export default config;

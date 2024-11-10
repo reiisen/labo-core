@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import type { Reserve, Course } from "@prisma/client";
-import config from "./config";
+import { getConfig } from "./config";
 
 const prisma = new PrismaClient();
 
@@ -16,7 +16,7 @@ export async function checkCourseCollision(request: Omit<Course, 'id'>): Promise
     })
   ];
 
-  const map = Array<boolean>(config.maxTimeslot + 1).fill(false);
+  const map = Array<boolean>(getConfig().maxTimeslot + 1).fill(false);
   combined.forEach(
     (value) => {
       const timeslot = value.timeslot;
@@ -69,7 +69,7 @@ export async function checkReserveCollision(request: Omit<Reserve, 'id'>): Promi
     })
   ];
 
-  const map = Array<boolean>(config.maxTimeslot + 1).fill(false);
+  const map = Array<boolean>(getConfig().maxTimeslot + 1).fill(false);
   courses.forEach(
     (value) => {
       const timeslot = value.timeslot;

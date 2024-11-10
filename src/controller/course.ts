@@ -1,7 +1,7 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import type { Course } from "@prisma/client"
 import { Request, Response } from "express";
-import config from "../extra/utility/config";
+import { getConfig } from "../extra/utility/config";
 import { checkCourseCollision } from "../extra/utility/checkCollision";
 
 const prisma = new PrismaClient();
@@ -19,25 +19,25 @@ export const create = async (
     return;
   }
 
-  if (request.timeslot > config.maxTimeslot || request.timeslot < config.minTimeslot) {
+  if (request.timeslot > getConfig().maxTimeslot || request.timeslot < getConfig().minTimeslot) {
     res.status(400)
     res.send("The specified timeslot of the requested course can't be negative nor above the defined MAX_TIMESLOT");
     return;
   }
 
-  if (request.day > config.maxDay || request.day < config.minDay) {
+  if (request.day > getConfig().maxDay || request.day < getConfig().minDay) {
     res.status(400);
     res.send("The specified data of the requested course can't be less than one nor above the defined MAX_DAY")
     return;
   }
 
-  if (request.length > config.maxCourseLength || request.length < 0) {
+  if (request.length > getConfig().maxCourseLength || request.length < 0) {
     res.status(400);
     res.send("The length of the requested course can't be negative or above the defined MAX_COURSE_LENGTH")
     return;
   }
 
-  if (request.timeslot + request.length - 1 > config.maxTimeslot) {
+  if (request.timeslot + request.length - 1 > getConfig().maxTimeslot) {
     res.status(400);
     res.send("The requested course went beyond the defined MAX_course_LENGTH")
     return;
