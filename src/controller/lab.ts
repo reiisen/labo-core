@@ -61,7 +61,8 @@ export const update = async (
   if (typeof id === 'string') {
     id = parseInt(id);
   }
-  const data = req.body
+  const data: Lab = req.body;
+  data.updatedAt = new Date();
   const lab = await prisma.lab.update({
     where: {
       id: id

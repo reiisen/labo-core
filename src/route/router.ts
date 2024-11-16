@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import lab from "./routes/lab"
 import subject from "./routes/subject"
-import course from "./routes/schedule"
+import course from "./routes/course"
 import reserve from "./routes/reserve"
 import config from "./routes/config"
 // import user from "./routes/user"

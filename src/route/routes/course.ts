@@ -9,7 +9,7 @@ router.get('/', readAll);
 
 router.post('/filter', read)
 
-router.get('/:id/update', update);
+router.post('/:id/update', update);
 
 router.get('/:id/remove', remove);
 

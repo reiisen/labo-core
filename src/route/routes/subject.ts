@@ -9,9 +9,9 @@ router.get('/:id', readOne);
 
 router.get('/', readAll);
 
-router.get('/filter', read);
+router.post('/filter', read);
 
-router.get('/:id/update', update);
+router.post('/:id/update', update);
 
 router.get('/:id/remove', remove);
 

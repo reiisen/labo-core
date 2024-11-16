@@ -27,6 +27,7 @@ export const create = async (
 
   const reserveHour = request.date.getHours();
   const reserveDay = request.date.getDay();
+  const currentDate = new Date();
 
   console.log("RESERVE HOUR: " + reserveHour);
   console.log("getConfig() MAX HOUR: " + getConfig().maxTimeslot);
@@ -64,11 +65,15 @@ export const create = async (
       return;
     }
 
-    if (reserveHour + 7 < new Date().getHours()) {
+    if (reserveHour < currentDate.getHours()) {
       res.status(400);
       res.send("The requested Reservation has already went past the hour")
+      return;
     }
   }
+
+  console.log("WTF" + request.date.getHours());
+  console.log("OKBRO" + currentDate.getHours());
 
   const reserve: Prisma.ReserveCreateInput = {
     lab: {
@@ -76,7 +81,7 @@ export const create = async (
     },
     name: request.name,
     reason: request.reason,
-    status: "PENDING",
+    status: request.date.getHours() !== currentDate.getHours() ? "PENDING" : "ACTIVE",
     date: request.date,
     length: request.length
   }
@@ -89,7 +94,7 @@ export const create = async (
   await prisma.reserve.create({ data: reserve })
     .then(async (result) => {
       console.log("Creating a job for managing statuses..");
-      runStatusJob(result);
+      request.date.getHours() !== currentDate.getHours() ? runStatusJob(result) : runStatusJob(result, true);
       console.log("Job created")
       res.status(200).send(result);
       console.log("Successfully created a reservation for:\n" + JSON.stringify(result));
@@ -149,7 +154,8 @@ export const update = async (
   if (typeof id === 'string') {
     id = parseInt(id);
   }
-  const data = req.body
+  const data: Reserve = req.body
+  data.updatedAt = new Date();
   const reserve = await prisma.reserve.update({
     where: {
       id: id
@@ -201,50 +207,92 @@ export const cancel = async (
   const job = jobs.get(id);
 
   if (job !== undefined) {
-    if (check.status === "PENDING") {
+    if (check.status === "PENDING" && job.length === 2) {
       job[0].stop();
-    } else job[1].stop();
-    console.log("stopped job");
+      job[1].stop();
+    } else {
+      job[0].stop();
+    }
   }
 
   jobs.delete(id);
   res.status(200).send(reserve);
 }
 
+type activeJob = {
+  id: number;
+  jobs:
+  {
+    start:
+    {
+      running: boolean,
+      date: string
+    },
+    finish:
+    {
+      running: boolean,
+      date: string
+    }
+  };
+} |
+
+{
+  id: number;
+  jobs:
+  {
+    finish:
+    {
+      running: boolean,
+      date: string
+    }
+  }
+}
+
 export const getActiveJobs = async (
   req: Request,
-  res: Response<{ id: number; jobs: { start: { running: boolean, date: string }, finish: { running: boolean, date: string } } }[]>
+  res: Response<activeJob[]>
 ) => {
-  let activeJobs:
-    {
-      id: number;
-      jobs: {
-        start: { running: boolean, date: string },
-        finish: { running: boolean, date: string }
-      }
-    }[] = [];
+  let activeJobs: activeJob[] = [];
 
   for (const [id, job] of jobs.entries()) {
-    activeJobs.push(
-      {
-        id: Number(id),
-        jobs: {
-          start:
-          {
-            running: job[0].running,
-            date: job[0].nextDate().toISO() ?
-              job[0].nextDate().toISO()! :
-              "Invalid Date"
-          },
-          finish:
-          {
-            running: job[1].running,
-            date: job[1].nextDate().toISO() ?
-              job[1].nextDate().toISO()! :
-              "Invalid Date"
+    if (job.length === 2) {
+      activeJobs.push(
+        {
+          id: Number(id),
+          jobs: {
+            start:
+            {
+              running: job[0].running,
+              date: job[0].nextDate().toISO() ?
+                job[0].nextDate().toISO()! :
+                "Invalid Date"
+            },
+            finish:
+            {
+              running: job[1].running,
+              date: job[1].nextDate().toISO() ?
+                job[1].nextDate().toISO()! :
+                "Invalid Date"
+            }
           }
         }
-      });
+      );
+    } else {
+      activeJobs.push(
+        {
+          id: Number(id),
+          jobs: {
+            finish:
+            {
+              running: job[0].running,
+              date: job[0].nextDate().toISO() ?
+                job[0].nextDate().toISO()! :
+                "Invalid Date"
+            }
+          }
+        }
+      );
+    }
   }
 
   res.status(200).send(activeJobs);

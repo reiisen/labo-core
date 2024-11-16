@@ -63,7 +63,8 @@ export const update = async (
   if (typeof id === 'string') {
     id = parseInt(id);
   }
-  const data = req.body
+  const data: Subject = req.body
+  data.updatedAt = new Date();
   const subject = await prisma.subject.update({
     where: {
       id: id

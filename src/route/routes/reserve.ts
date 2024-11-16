@@ -11,7 +11,7 @@ router.post('/filter', read);
 
 router.get('/jobs', getActiveJobs);
 
-router.get('/:id/update', update);
+router.post('/:id/update', update);
 
 router.get('/:id/cancel', cancel);
 

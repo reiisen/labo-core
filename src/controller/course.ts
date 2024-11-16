@@ -90,8 +90,10 @@ export const readOne = async (
       return;
     }
     res.status(200).send(course);
+    return;
   } catch {
     res.status(400).send();
+    return;
   }
 }
 
@@ -118,8 +120,10 @@ export const read = async (
       include: include
     });
     res.status(200).send(courses);
+    return;
   } catch {
     res.status(400).send();
+    return;
   }
 }
 
@@ -131,7 +135,8 @@ export const update = async (
   if (typeof id === 'string') {
     id = parseInt(id);
   }
-  const data = req.body
+  const data: Course = req.body;
+  data.updatedAt = new Date();
   const course = await prisma.course.update({
     where: {
       id: id
@@ -139,6 +144,7 @@ export const update = async (
     data: data
   })
   res.status(200).send(course);
+  return;
 }
 
 export const remove = async (
