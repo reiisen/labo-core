@@ -25,8 +25,9 @@ export const create = async (
   console.log("DA REQUEST:\n" + JSON.stringify(request, null, 2));
   console.log("DA DATATYPE NOW: " + typeof request.date)
 
-  const reserveHour = request.date.getHours();
-  const reserveDay = request.date.getDay();
+  const reserveDate = request.date;
+  const reserveHour = reserveDate.getHours();
+  const reserveDay = reserveDate.getDay();
   const currentDate = new Date();
 
   console.log("RESERVE HOUR: " + reserveHour);
@@ -65,9 +66,9 @@ export const create = async (
       return;
     }
 
-    if (reserveHour < currentDate.getHours()) {
+    if (reserveDate < currentDate) {
       res.status(400);
-      res.send("The requested Reservation has already went past the hour")
+      res.send("The current date has went past the requested Reservation date")
       return;
     }
   }

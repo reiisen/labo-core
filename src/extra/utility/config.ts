@@ -7,7 +7,6 @@ export interface Config {
   maxTimeslot: number;
   maxDay: number;
   minDay: number;
-  maxCourseLength: number;
   maxReserveLength: number;
   serverPort: number;
   pollingRate: number;

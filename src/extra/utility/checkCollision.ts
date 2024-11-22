@@ -1,55 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-import type { Reserve, Course } from "@prisma/client";
+import type { Reserve } from "@prisma/client";
 import { getConfig } from "./config";
 
 const prisma = new PrismaClient();
 
-export async function checkCourseCollision(request: Omit<Course, 'id'>): Promise<boolean> {
-  const combined = [
-    ...await prisma.course.findMany({
-      where: {
-        day: request.day,
-        lab: {
-          id: request.labId
-        }
-      }
-    })
-  ];
-
-  const map = Array<boolean>(getConfig().maxTimeslot + 1).fill(false);
-  combined.forEach(
-    (value) => {
-      const timeslot = value.timeslot;
-      const length = value.length;
-      for (let i = timeslot; i < (timeslot + length); i++) {
-        map[i] = true;
-      }
-    }
-  );
-
-  let timeslot = request.timeslot;
-  const length = request.length;
-
-  for (let i = timeslot; i < (timeslot + length); i++) {
-    if (map[i] === true) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 export async function checkReserveCollision(request: Omit<Reserve, 'id'>): Promise<boolean> {
   console.log(JSON.stringify(request, null, 2));
-  const courses = [
-    ...await prisma.course.findMany({
-      where: {
-        day: request.date.getDay(),
-        lab: {
-          id: request.labId
-        }
-      }
-    })]
   const reserves = [
     ...await prisma.reserve.findMany({
       where: {
@@ -70,16 +26,6 @@ export async function checkReserveCollision(request: Omit<Reserve, 'id'>): Promi
   ];
 
   const map = Array<boolean>(getConfig().maxTimeslot + 1).fill(false);
-  courses.forEach(
-    (value) => {
-      const timeslot = value.timeslot;
-      const length = value.length;
-      for (let i = timeslot; i < (timeslot + length); i++) {
-        map[i] = true;
-      }
-    }
-  );
-
   reserves.forEach(
     (value) => {
       const timeslot = value.date.getHours();
