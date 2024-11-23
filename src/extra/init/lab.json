@@ -1,47 +1,11 @@
 [
   {
-    "name": "Lab Komputer Dasar A",
-    "code": "LKD A",
-    "floor": 2
+    "name": "Lab Komputasi Cerdas",
   },
   {
-    "name": "Lab Komputer Dasar B",
-    "code": "LKD B",
-    "floor": 2
+    "name": "Lab Mabok",
   },
   {
-    "name": "Lab Komputer Dasar C",
-    "code": "LKD C",
-    "floor": 2
-  },
-  {
-    "name": "Lab Basis Data A",
-    "code": "LBD A",
-    "floor": 3
-  },
-  {
-    "name": "Lab Basis Data B",
-    "code": "LBD B",
-    "floor": 3
-  },
-  {
-    "name": "Lab Basis Data C",
-    "code": "LBD C",
-    "floor": 3
-  },
-  {
-    "name": "Lab Jaringan Komputer A",
-    "code": "LJK A",
-    "floor": 4
-  },
-  {
-    "name": "Lab Jaringan Komputer B",
-    "code": "LJK B",
-    "floor": 4
-  },
-  {
-    "name": "Lab Jaringan Komputer C",
-    "code": "LJK C",
-    "floor": 4
+    "name": "Ruang Penelitian",
   }
 ]

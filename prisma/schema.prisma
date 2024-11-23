@@ -4,30 +4,43 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL_FLUX")
+  url      = env("DATABASE_URL_IIDX")
 }
 
 model Lab {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
-  code      String
-  floor     Int
+  computers Computer[]
   reserves  Reserve[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  rate      Float      @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+}
+
+model Computer {
+  id        Int       @id @default(autoincrement())
+  lab       Lab       @relation(fields: [labId], references: [id])
+  labId     Int
+  name      String
+  reserves  Reserve[]
+  rate      Float     @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
 }
 
 model Reserve {
-  id       Int      @id @default(autoincrement())
-  lab      Lab      @relation(fields: [labId], references: [id])
-  labId    Int
-  name     String
-  reason   String
-  date     DateTime
-  length   Int
-  status   Status
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  computer   Computer @relation(fields: [computerId], references: [id])
+  computerId Int
+  lab        Lab      @relation(fields: [labId], references: [id])
+  labId      Int
+  nim        String
+  reason     String
+  date       DateTime
+  length     Int
+  status     Status
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
 }
 
 enum Status {
