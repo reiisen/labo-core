@@ -28,19 +28,30 @@ model Computer {
   updatedAt DateTime  @default(now())
 }
 
+model Room {
+  id        Int       @id @default(autoincrement())
+  name      String
+  reserves  Reserve[]
+  rate      Float     @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+}
+
 model Reserve {
-  id         Int      @id @default(autoincrement())
-  computer   Computer @relation(fields: [computerId], references: [id])
-  computerId Int
-  lab        Lab      @relation(fields: [labId], references: [id])
-  labId      Int
+  id         Int       @id @default(autoincrement())
+  computer   Computer? @relation(fields: [computerId], references: [id])
+  computerId Int?
+  lab        Lab?      @relation(fields: [labId], references: [id])
+  labId      Int?
+  room       Room?     @relation(fields: [roomId], references: [id])
+  roomId     Int?
   nim        String
   reason     String
   date       DateTime
   length     Int
   status     Status
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now())
 }
 
 enum Status {

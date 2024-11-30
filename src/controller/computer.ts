@@ -1,16 +1,22 @@
-import { PrismaClient, Prisma } from "@prisma/client";
-import type { Lab } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import type { Computer } from "@prisma/client";
 import { Request, Response } from "express";
 
 const prisma = new PrismaClient();
 
 export const create = async (
-  req: Request<Omit<Lab, 'id'>>,
-  res: Response<Lab>
+  req: Request<{ name: string, labId: number }>,
+  res: Response<Computer>
 ) => {
-  let lab: Prisma.LabCreateInput
-  lab = req.body
-  await prisma.lab.create({ data: lab })
+  let computer = req.body
+  await prisma.computer.create({
+    data: {
+      name: computer.name,
+      lab: {
+        connect: { id: computer.labId }
+      }
+    }
+  })
     .then((result) => {
       res.status(200);
       res.send(result);
@@ -19,65 +25,65 @@ export const create = async (
 
 export const readOne = async (
   req: Request<{ id: string }>,
-  res: Response<Lab | null>,
+  res: Response<Computer | null>,
 ) => {
   const id = parseInt(req.params.id);
-  const lab = await prisma.lab.findUnique({
+  const computer = await prisma.computer.findUnique({
     where: {
       id: id
     }
   })
-  res.status(200).send(lab);
+  res.status(200).send(computer);
 }
 
 export const readAll = async (
   req: Request<{}>,
-  res: Response<Lab[] | null>,
+  res: Response<Computer[] | null>,
 ) => {
-  const lab = await prisma.lab.findMany()
-  res.status(200).send(lab);
+  const computer = await prisma.computer.findMany()
+  res.status(200).send(computer);
 }
 
 export const read = async (
-  req: Request<Partial<Omit<Lab, "id">> | Pick<Lab, "id">>,
-  res: Response<Lab[]>
+  req: Request<Partial<Omit<Computer, "id">> | Pick<Computer, "id">>,
+  res: Response<Computer[]>
 ) => {
-  const filter: Partial<Omit<Lab, "id">> | Pick<Lab, "id"> = req.body;
+  const filter: Partial<Omit<Computer, "id">> | Pick<Computer, "id"> = req.body;
   try {
-    const lab = await prisma.lab.findMany({
+    const computer = await prisma.computer.findMany({
       where: filter
     });
-    res.status(200).send(lab);
+    res.status(200).send(computer);
   } catch {
     res.status(400).send();
   }
 }
 
 export const update = async (
-  req: Request<Lab>,
-  res: Response<Lab | null>
+  req: Request<Computer>,
+  res: Response<Computer | null>
 ) => {
   let id = req.params.id;
   if (typeof id === 'string') {
     id = parseInt(id);
   }
-  const data: Lab = req.body;
+  const data: Computer = req.body;
   data.updatedAt = new Date();
-  const lab = await prisma.lab.update({
+  const computer = await prisma.computer.update({
     where: {
       id: id
     },
     data: data
   })
-  res.status(200).send(lab);
+  res.status(200).send(computer);
 }
 
 export const remove = async (
-  req: Request<{ id: string }>,
+  req: Request,
   res: Response
 ) => {
   const id = parseInt(req.params.id);
-  await prisma.lab.delete({
+  await prisma.computer.delete({
     where: {
       id: id
     }

@@ -7,12 +7,17 @@ import { checkReserveCollision } from "../extra/utility/checkCollision";
 
 const prisma = new PrismaClient();
 
+function isBetweenInterval(target: Date, start: Date, end: Date): boolean {
+  if (target < start || target > end) return false; else return true;
+}
+
 export const create = async (
-  req: Request<Omit<Reserve, 'id' | 'status'>>,
+  req: Request<Omit<Reserve, "id">>,
   res: Response<Reserve | string>,
 ) => {
-  let request: Omit<Reserve, 'id'>;
+  let request: Omit<Reserve, "id">;
   console.log("WHY: \n" + JSON.stringify(req.body));
+
   try {
     request = { ...req.body, date: new Date(req.body.date) }
   } catch {
@@ -20,6 +25,13 @@ export const create = async (
     res.send("It seems the requested JSON body was incorrect")
     return;
   }
+
+  if ((request.labId || request.computerId) && request.roomId) {
+    res.status(400);
+    res.send("It seems the reequested JSON body was trying to reserve both a room and a lab/computer")
+    return;
+  }
+
   console.log("Reservation creation request received")
 
   console.log("DA REQUEST:\n" + JSON.stringify(request, null, 2));
@@ -29,6 +41,14 @@ export const create = async (
   const reserveHour = reserveDate.getHours();
   const reserveDay = reserveDate.getDay();
   const currentDate = new Date();
+  const interval1 = new Date(currentDate);
+  const interval2 = new Date(currentDate);
+  interval1.setHours(interval1.getHours(), 0, 0, 0)
+  interval2.setHours(interval2.getHours() + 1, 0, 0, 0)
+  console.log("INTERVAL 1: " + interval1);
+  console.log("INTERVAL 2: " + interval2);
+  console.log("dettt: " + request.date);
+  console.log("ellllldedlelelelele: " + isBetweenInterval(request.date, interval1, interval2));
 
   console.log("RESERVE HOUR: " + reserveHour);
   console.log("getConfig() MAX HOUR: " + getConfig().maxTimeslot);
@@ -66,7 +86,7 @@ export const create = async (
       return;
     }
 
-    if (reserveDate < currentDate) {
+    if (reserveDate < interval1) {
       res.status(400);
       res.send("The current date has went past the requested Reservation date")
       return;
@@ -76,26 +96,57 @@ export const create = async (
   console.log("WTF" + request.date.getHours());
   console.log("OKBRO" + currentDate.getHours());
 
-  const reserve: Prisma.ReserveCreateInput = {
-    lab: {
-      connect: { id: request.labId }
-    },
-    name: request.name,
-    reason: request.reason,
-    status: request.date.getHours() !== currentDate.getHours() ? "PENDING" : "ACTIVE",
-    date: request.date,
-    length: request.length
+  let reserve: Prisma.ReserveCreateInput;
+
+  if (request.roomId) {
+    reserve = {
+      room: {
+        connect: { id: request.roomId }
+      },
+      nim: request.nim,
+      reason: request.reason,
+      status: (isBetweenInterval(reserveDate, interval1, interval2)) ? "ACTIVE" : "PENDING",
+      date: request.date,
+      length: request.length
+    }
+  } else if (request.labId && request.computerId) {
+    reserve = {
+      lab: {
+        connect: { id: request.labId }
+      },
+      computer: {
+        connect: { id: request.computerId }
+      },
+      nim: request.nim,
+      reason: request.reason,
+      status: (isBetweenInterval(request.date, interval1, interval2)) ? "ACTIVE" : "PENDING",
+      date: request.date,
+      length: request.length
+    }
+  } else {
+    res.status(400).send("How do we get there?");
+    return;
   }
 
-  if (await checkReserveCollision(request)) {
-    res.status(400);
-    res.send("The requested schedule collides with other existing schedule");
-    return console.log("Reservation Failed");
+
+  try {
+    if (await checkReserveCollision(request)) {
+      res.status(400);
+      res.send("The requested schedule collides with other existing schedule");
+      return console.log("Reservation Failed");
+    }
+  } catch {
+    (e: string) => {
+      res.status(400);
+      res.send(e);
+      return;
+    };
   }
+
   await prisma.reserve.create({ data: reserve })
     .then(async (result) => {
       console.log("Creating a job for managing statuses..");
-      request.date.getHours() !== currentDate.getHours() ? runStatusJob(result) : runStatusJob(result, true);
+      isBetweenInterval(request.date, interval1, interval2) ? runStatusJob(result, true) : runStatusJob(result);
       console.log("Job created")
       res.status(200).send(result);
       console.log("Successfully created a reservation for:\n" + JSON.stringify(result));
@@ -224,7 +275,7 @@ type activeJob = {
   id: number;
   jobs:
   {
-    start:
+    start?:
     {
       running: boolean,
       date: string
@@ -235,18 +286,6 @@ type activeJob = {
       date: string
     }
   };
-} |
-
-{
-  id: number;
-  jobs:
-  {
-    finish:
-    {
-      running: boolean,
-      date: string
-    }
-  }
 }
 
 export const getActiveJobs = async (

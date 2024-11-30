@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Komputer A1",
+    "labId": 1
+  },
+  {
+    "name": "Komputer A2",
+    "labId": 1
+  },
+  {
+    "name": "Komputer A3",
+    "labId": 1
+  },
+  {
+    "name": "Komputer A4",
+    "labId": 1
+  },
+  {
+    "name": "Komputer A5",
+    "labId": 1
+  },
+  {
+    "name": "Komputer A6",
+    "labId": 1
+  },
+  {
+    "name": "Komputer A7",
+    "labId": 1
+  },
+  {
+    "name": "Komputer A8",
+    "labId": 1
+  },
+  {
+    "name": "Komputer A9",
+    "labId": 1
+  },
+  {
+    "name": "Komputer A10",
+    "labId": 1
+  },
+  {
+    "name": "Komputer B1",
+    "labId": 2
+  },
+  {
+    "name": "Komputer B2",
+    "labId": 2
+  },
+  {
+    "name": "Komputer B3",
+    "labId": 2
+  },
+  {
+    "name": "Komputer B4",
+    "labId": 2
+  },
+  {
+    "name": "Komputer B5",
+    "labId": 2
+  },
+  {
+    "name": "Komputer B6",
+    "labId": 2
+  },
+  {
+    "name": "Komputer B7",
+    "labId": 2
+  },
+  {
+    "name": "Komputer B8",
+    "labId": 2
+  },
+  {
+    "name": "Komputer B9",
+    "labId": 2
+  },
+  {
+    "name": "Komputer B10",
+    "labId": 2
+  }
+]
