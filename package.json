@@ -7,7 +7,8 @@
     "dev": "npx ts-node -r dotenv/config ./src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "npx ts-node ./src/extra/utility/seed.ts",
-    "dbreset": "npx prisma db push --force-reset && npm run seed"
+    "dbreset": "npx prisma db push --force-reset && npm run seed",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
