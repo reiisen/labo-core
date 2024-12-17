@@ -6,7 +6,7 @@ import config from '../config.json';
 const app = express();
 
 app.use(express.json());
-app.use(cors({ origin: `${process.env.VERCEL_URL ? process.env.VERCEL_URL : process.env.APP_URL}` }));
+app.use(cors({ origin: `${process.env.FRONTEND_URL ? process.env.FRONTEND_URL : process.env.APP_URL}` }));
 
 const port = process.env.PORT;
 
