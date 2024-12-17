@@ -6,7 +6,7 @@ import config from '../config.json';
 const app = express();
 
 app.use(express.json());
-app.use(cors({ origin: `http://localhost:3000` }));
+app.use(cors({ origin: `${process.env.VERCEL_URL ? process.env.VERCEL_URL : process.env.APP_URL}` }));
 
 const port = process.env.PORT;
 
@@ -16,10 +16,5 @@ app.listen(port, () => {
   console.clear();
   console.log(`
     🚀 Server ready at: http://localhost:${config.serverPort}
-
-       いつまでもあきらめないで元気になれ
-       時は時々残酷ようなものだが
-       そのものの経過にいつもいつも流れさえすれば
-       あなたの時代はまだ終わっていません
   `);
 })

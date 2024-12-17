@@ -72,6 +72,38 @@ export const update = async (
   res.status(200).send(lab);
 }
 
+export const toggleInactive = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const id = parseInt(req.params.id);
+  const check = await prisma.lab.findUnique({
+    where: {
+      id: id
+    },
+    select: {
+      inactive: true
+    }
+  });
+  try {
+    await prisma.lab.update({
+      where: {
+        id: id
+      },
+      data: {
+        inactive: check ? check.inactive ? false : true : false
+      }
+    }).then(() => {
+      res.status(200);
+      res.send("OK");
+      return;
+    })
+  } catch {
+    console.log("error, maybe wrong id?");
+    return;
+  }
+}
+
 export const remove = async (
   req: Request<{ id: string }>,
   res: Response
@@ -84,5 +116,6 @@ export const remove = async (
   }).then(() => {
     res.status(200);
     res.send("OK");
+    return;
   })
 }

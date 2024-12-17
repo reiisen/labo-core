@@ -1,5 +1,5 @@
 import express from "express";
-import { create, read, readAll, readOne, update, remove, cancel, getActiveJobs } from "../../controller/reserve"
+import { create, read, readAll, readOne, update, remove, cancel, getActiveJobs, recheckAndRevive } from "../../controller/reserve"
 
 const router = express.Router()
 
@@ -10,6 +10,8 @@ router.get('/', readAll);
 router.post('/filter', read);
 
 router.get('/jobs', getActiveJobs);
+
+router.get('/revive', recheckAndRevive);
 
 router.post('/:id/update', update);
 

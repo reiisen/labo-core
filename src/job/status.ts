@@ -73,5 +73,5 @@ export async function runStatusJob(request: Reserve, instant?: boolean): Promise
 
   console.log(`Added job id ${request.id}`);
   console.log(`Started job id ${request.id}`);
+  console.log(jobs);
 }
-

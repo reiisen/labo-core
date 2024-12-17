@@ -78,6 +78,40 @@ export const update = async (
   res.status(200).send(computer);
 }
 
+export const toggleInactive = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const id = parseInt(req.params.id);
+  const check = await prisma.computer.findUnique({
+    where: {
+      id: id
+    },
+    select: {
+      inactive: true
+    }
+  });
+  try {
+    await prisma.computer.update({
+      where: {
+        id: id
+      },
+      data: {
+        inactive: check ? check.inactive ? false : true : false
+      }
+    }).then(() => {
+      res.status(200);
+      res.send("OK");
+      return;
+    })
+  } catch {
+    console.log("error, maybe wrong id?");
+    res.status(400);
+    res.send("FAILED");
+    return;
+  }
+}
+
 export const remove = async (
   req: Request,
   res: Response

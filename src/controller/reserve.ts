@@ -4,10 +4,11 @@ import { Request, Response } from "express";
 import { jobs, runStatusJob } from "../job/status";
 import { getConfig } from "../extra/utility/config";
 import { checkReserveCollision } from "../extra/utility/checkCollision";
+import { recheck, revive } from "../extra/utility/revive";
 
 const prisma = new PrismaClient();
 
-function isBetweenInterval(target: Date, start: Date, end: Date): boolean {
+export function isBetweenInterval(target: Date, start: Date, end: Date): boolean {
   if (target < start || target > end) return false; else return true;
 }
 
@@ -30,6 +31,72 @@ export const create = async (
     res.status(400);
     res.send("It seems the reequested JSON body was trying to reserve both a room and a lab/computer")
     return;
+  }
+
+  if (request.labId && request.computerId) {
+    const labCheck = await prisma.lab.findUnique({
+      where: {
+        id: request.labId
+      },
+      select: {
+        inactive: true
+      }
+    })
+
+    if (labCheck) {
+      if (labCheck.inactive) {
+        res.status(400);
+        res.send("The lab is not for reservation")
+        return;
+      }
+    } else {
+      res.status(400);
+      res.send("Yeah the lab doesn't exist");
+      return;
+    }
+
+    const computerCheck = await prisma.computer.findUnique({
+      where: {
+        id: request.labId
+      },
+      select: {
+        inactive: true
+      }
+    })
+
+    if (computerCheck) {
+      if (computerCheck.inactive) {
+        res.status(400);
+        res.send("The computer is not for reservation")
+        return;
+      }
+    } else {
+      res.status(400);
+      res.send("Yeah the computer doesn't exist");
+      return;
+    }
+  } else if (request.roomId) {
+    const roomCheck = await prisma.room.findUnique({
+      where: {
+        id: request.roomId
+      },
+      select: {
+        inactive: true
+      }
+    })
+    if (roomCheck) {
+      if (roomCheck.inactive) {
+        res.status(400);
+        res.send("The room is not for reservation")
+      }
+    } else {
+      res.status(400);
+      res.send("Yeah the room doesn't exist");
+      return;
+    }
+  } else {
+    res.status(400);
+    res.send("How did we get here? (1)");
   }
 
   console.log("Reservation creation request received")
@@ -124,7 +191,7 @@ export const create = async (
       length: request.length
     }
   } else {
-    res.status(400).send("How do we get there?");
+    res.status(400).send("How did we get here? (2)");
     return;
   }
 
@@ -337,6 +404,24 @@ export const getActiveJobs = async (
 
   res.status(200).send(activeJobs);
 };
+
+export const recheckAndRevive = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    await recheck();
+    await revive();
+  } catch (e) {
+    res.status(400);
+    res.send();
+    return;
+  }
+
+  res.status(400);
+  res.send();
+  return;
+}
 
 export const remove = async (
   req: Request,
