@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "start": "npx ts-node -r dotenv/config ./src/index.ts",
+    "start": "node dist/src/index.js",
+    "build": "npx tsc",
     "dev": "npx ts-node -r dotenv/config ./src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "npx ts-node ./src/extra/utility/seed.ts",
@@ -22,11 +23,12 @@
     "express": "^4.21.0",
     "prisma": "^5.20.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.2"
+    "typescript": "^5.7.2"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
     "cors": "^2.8.5",
-    "cron": "^3.1.7"
+    "cron": "^3.1.7",
+    "tsc": "^2.0.4"
   }
 }
