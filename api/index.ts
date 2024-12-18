@@ -1,5 +1,5 @@
 import express from 'express';
-import setupRoute from './route/router'
+import setupRoute from '../src/route/router'
 import cors from 'cors';
 import config from '../config.json';
 
@@ -18,3 +18,5 @@ app.listen(port, () => {
     🚀 Server ready at: http://localhost:${config.serverPort}
   `);
 })
+
+export default app

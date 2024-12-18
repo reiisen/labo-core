@@ -1,5 +1,5 @@
 import express from "express";
-import { create, readOne, readAll, update, remove, read, toggleInactive } from "../../controller/computer"
+import { create, readOne, readAll, update, remove, read, toggleInactive } from "../../../src/controller/computer"
 
 const router = express.Router()
 
