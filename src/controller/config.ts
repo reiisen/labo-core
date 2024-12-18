@@ -27,3 +27,15 @@ export const read = async (
     res.status(400).send();
   }
 }
+
+export const getVite = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const response = process.env.FRONTEND_URL;
+    res.status(200).send(response);
+  } catch {
+    res.status(400).send();
+  }
+}
